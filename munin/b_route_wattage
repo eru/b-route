@@ -17,13 +17,13 @@ if [ "$1" = "config" ]; then
   echo 'graph_scale no'
   echo 'graph_category sensors'
 
-  echo 'broute.label B route'
-  echo 'broute.info B route'
+  echo 'b_route.label B route'
+  echo 'b_route.info B route'
 
   # Last, if run with the "config"-parameter, quit here (don't
   # display any data)
   exit 0
 fi
 
-echo -n "broute.value "
+echo -n "b_route.value "
 b-route-wattage | cut -d' ' -f1
