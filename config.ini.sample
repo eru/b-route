@@ -1,0 +1,12 @@
+[device]
+; Serial port device. e.g. /dev/ttyUSB0, COM0, /dev/cu.usbserial-XXX
+port =
+
+[auth]
+; B route ID without spaces.
+broute_id =
+; B route password without spaces.
+broute_pw =
+
+[connection]
+; Do not edit here. Auto configuration section.
