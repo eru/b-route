@@ -58,13 +58,11 @@ def main() -> None:
     ser = Serial(port, 115200)
 
     # set password
-    print("password")
     ser.write(str.encode(f"SKSETPWD C {broute_pw}\r\n"))
     ser.readline()
     ser.readline()
 
     # set id
-    print("id")
     ser.write(str.encode(f"SKSETRBID {broute_id}\r\n"))
     ser.readline()
     ser.readline()
@@ -78,19 +76,16 @@ def main() -> None:
         save_connection(inifile, channel, pan_id, address)
 
     # set channel
-    print("channel")
     ser.write(str.encode(f"SKSREG S2 {channel}\r\n"))
     ser.readline()
     ser.readline()
 
     # set pan id
-    print("pan id")
     ser.write(str.encode(f"SKSREG S3 {pan_id}\r\n"))
     ser.readline()
     ser.readline()
 
     # pana connection
-    print("pana")
     ser.write(str.encode(f"SKJOIN {address}\r\n"))
     ser.readline()
     ser.readline()
@@ -104,7 +99,6 @@ def main() -> None:
     ser.timeout = 2
 
     # get data
-    print("data")
     frame = b"\x10\x81\x00\x01\x05\xFF\x01\x02\x88\x01\x62\x01\xE7\x00"
     command = str.encode(f"SKSENDTO 1 {address} 0E1A 1 {len(frame):04X} ") + frame
     while True:
@@ -114,22 +108,15 @@ def main() -> None:
         ser.readline()
         line = ser.readline().decode(encoding="utf-8")
         if not line.startswith("ERXUDP"):
-            print("n1")
-            print(line)
             continue
         data = line.split(" ")
         res = data[8]
         seoj = res[8:14]
         esv = res[20:22]
         if seoj != "028801" or esv != "72":
-            print("n2")
-            print(seoj)
-            print(esv)
             continue
         epc = res[24:26]
         if epc != "E7":
-            print("n3")
-            print(epc)
             continue
         wattage_hex = res[-8:]
         wattage = int(wattage_hex, 16)
