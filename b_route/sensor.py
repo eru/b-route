@@ -36,14 +36,25 @@ def scan(ser: Serial) -> tuple[str, str, str]:
     return (res["Channel"], res["Pan ID"], address)
 
 
+def save_config(inifile: ConfigParser) -> None:
+    with open("./config.ini", "w") as configfile:
+        inifile.write(configfile)
+
+
 def save_connection(inifile: ConfigParser, channnel: str, pan_id: str, address: str) -> None:
     inifile.set("connection", "channel", channnel)
     inifile.set("connection", "pan_id", pan_id)
     inifile.set("connection", "address", address)
 
-    # save config
-    with open("./config.ini", "w") as configfile:
-        inifile.write(configfile)
+    save_config(inifile)
+
+
+def reset_connection(inifile: ConfigParser) -> None:
+    inifile.remove_option("connection", "channel")
+    inifile.remove_option("connection", "pan_id")
+    inifile.remove_option("connection", "address")
+
+    save_config(inifile)
 
 
 def main() -> None:
@@ -75,53 +86,57 @@ def main() -> None:
         (channel, pan_id, address) = scan(ser)
         save_connection(inifile, channel, pan_id, address)
 
-    # set channel
-    ser.write(str.encode(f"SKSREG S2 {channel}\r\n"))
-    ser.readline()
-    ser.readline()
+    try:
+        # set channel
+        ser.write(str.encode(f"SKSREG S2 {channel}\r\n"))
+        ser.readline()
+        ser.readline()
 
-    # set pan id
-    ser.write(str.encode(f"SKSREG S3 {pan_id}\r\n"))
-    ser.readline()
-    ser.readline()
+        # set pan id
+        ser.write(str.encode(f"SKSREG S3 {pan_id}\r\n"))
+        ser.readline()
+        ser.readline()
 
-    # pana connection
-    ser.write(str.encode(f"SKJOIN {address}\r\n"))
-    ser.readline()
-    ser.readline()
-    while True:
-        line = ser.readline().decode(encoding="utf-8")
-        if line.startswith("EVENT 24"):
-            exit()
-        if line.startswith("EVENT 25"):
+        # pana connection
+        ser.write(str.encode(f"SKJOIN {address}\r\n"))
+        ser.readline()
+        ser.readline()
+        while True:
+            line = ser.readline().decode(encoding="utf-8")
+            if line.startswith("EVENT 24"):
+                exit()
+            if line.startswith("EVENT 25"):
+                break
+        ser.readline()
+        ser.timeout = 2
+
+        # get data
+        frame = b"\x10\x81\x00\x01\x05\xFF\x01\x02\x88\x01\x62\x01\xE7\x00"
+        command = str.encode(f"SKSENDTO 1 {address} 0E1A 1 {len(frame):04X} ") + frame
+        while True:
+            ser.write(command)
+            ser.readline()
+            ser.readline()
+            ser.readline()
+            line = ser.readline().decode(encoding="utf-8")
+            if not line.startswith("ERXUDP"):
+                continue
+            data = line.split(" ")
+            res = data[8]
+            seoj = res[8:14]
+            esv = res[20:22]
+            if seoj != "028801" or esv != "72":
+                continue
+            epc = res[24:26]
+            if epc != "E7":
+                continue
+            wattage_hex = res[-8:]
+            wattage = int(wattage_hex, 16)
+            print(f"{wattage} [W]")
             break
-    ser.readline()
-    ser.timeout = 2
-
-    # get data
-    frame = b"\x10\x81\x00\x01\x05\xFF\x01\x02\x88\x01\x62\x01\xE7\x00"
-    command = str.encode(f"SKSENDTO 1 {address} 0E1A 1 {len(frame):04X} ") + frame
-    while True:
-        ser.write(command)
-        ser.readline()
-        ser.readline()
-        ser.readline()
-        line = ser.readline().decode(encoding="utf-8")
-        if not line.startswith("ERXUDP"):
-            continue
-        data = line.split(" ")
-        res = data[8]
-        seoj = res[8:14]
-        esv = res[20:22]
-        if seoj != "028801" or esv != "72":
-            continue
-        epc = res[24:26]
-        if epc != "E7":
-            continue
-        wattage_hex = res[-8:]
-        wattage = int(wattage_hex, 16)
-        print(f"{wattage} [W]")
-        break
+    except Exception:
+        reset_connection(inifile)
+        main()
 
 
 if __name__ == "__main__":
