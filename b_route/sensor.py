@@ -57,7 +57,7 @@ def reset_connection(inifile: ConfigParser) -> None:
     save_config(inifile)
 
 
-def main() -> None:
+def main(is_triable: bool = True) -> None:
     # initlize
     inifile = ConfigParser()
     inifile.read("./config.ini", "utf-8")
@@ -104,7 +104,7 @@ def main() -> None:
         while True:
             line = ser.readline().decode(encoding="utf-8")
             if line.startswith("EVENT 24"):
-                exit()
+                raise IOError("EVENT 24")
             if line.startswith("EVENT 25"):
                 break
         ser.readline()
@@ -134,9 +134,11 @@ def main() -> None:
             wattage = int(wattage_hex, 16)
             print(f"{wattage} [W]")
             break
-    except Exception:
+    except Exception as e:
+        if not is_triable:
+            raise e
         reset_connection(inifile)
-        main()
+        main(is_triable=False)
 
 
 if __name__ == "__main__":
