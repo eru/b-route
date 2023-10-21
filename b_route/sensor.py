@@ -133,7 +133,10 @@ def main(is_triable: bool = True) -> None:
             wattage_hex = res[-8:]
             wattage = int(wattage_hex, 16)
             print(f"{wattage} [W]")
+
             break
+
+        ser.close()
     except Exception as e:
         if not is_triable:
             raise e
