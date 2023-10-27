@@ -6,7 +6,7 @@
     "postinstall": "poetry install",
     "lint": "run-s lint:fix-all lint:lint-all",
     "lint:fix-all": "npm run lint:fix b_route",
-    "lint:fix": "./scripts/format-imports.sh",
+    "lint:fix": "./scripts/format.sh",
     "lint:lint-all": "npm run lint:lint b_route",
     "lint:lint": "./scripts/lint.sh"
   },

@@ -3,7 +3,5 @@
 set -e
 set -x
 
-poetry run mypy "${@}"
-poetry run black --check "${@}"
-poetry run isort --check-only "${@}"
-poetry run pflake8 "${@}"
+poetry run ruff check "${@}"
+poetry run ruff format --check "${@}"
