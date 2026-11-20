@@ -8,5 +8,11 @@ broute_id =
 ; B route password without spaces.
 broute_pw =
 
+[daemon]
+; Polling interval in seconds (default: 60)
+interval = 60
+; Output status JSON path (default: /run/b-route/wattage.json)
+output_file = /run/b-route/wattage.json
+
 [connection]
 ; Do not edit here. Auto configuration section.

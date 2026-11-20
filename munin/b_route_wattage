@@ -1,6 +1,8 @@
 #!/bin/bash
 
-. "$MUNIN_LIBDIR/plugins/plugin.sh"
+if [ -n "${MUNIN_LIBDIR:-}" ] && [ -f "$MUNIN_LIBDIR/plugins/plugin.sh" ]; then
+  . "$MUNIN_LIBDIR/plugins/plugin.sh"
+fi
 
 if [ "$1" = "autoconf" ]; then
   echo yes
@@ -25,5 +27,29 @@ if [ "$1" = "config" ]; then
   exit 0
 fi
 
-echo -n "b_route.value "
-b-route-wattage | cut -d' ' -f1
+STATUS_FILE="${status_file:-/run/b-route/wattage.json}"
+MAX_AGE="${max_age:-300}"
+
+VALUE=$(python3 - "$STATUS_FILE" "$MAX_AGE" <<'EOF'
+import json
+import sys
+import time
+
+status_file = sys.argv[1]
+max_age = float(sys.argv[2])
+
+try:
+    with open(status_file, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    updated_at = float(data["updated_at"])
+    wattage = int(data["wattage"])
+    if time.time() - updated_at > max_age:
+        print("U")
+    else:
+        print(wattage)
+except Exception:
+    print("U")
+EOF
+)
+
+echo "b_route.value $VALUE"

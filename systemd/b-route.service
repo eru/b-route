@@ -1,0 +1,18 @@
+[Unit]
+Description=B-route Smart Meter Wattage Daemon
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/b-route
+ExecStart=/usr/local/bin/uv run sensor --config /opt/b-route/config.ini
+Restart=always
+RestartSec=10
+RuntimeDirectory=b-route
+RuntimeDirectoryMode=0755
+SupplementaryGroups=dialout
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
