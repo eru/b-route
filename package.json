@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "postinstall": "poetry install",
+    "postinstall": "uv sync",
     "lint": "run-s lint:fix-all lint:lint-all",
-    "lint:fix-all": "npm run lint:fix b_route",
+    "lint:fix-all": "pnpm run lint:fix b_route",
     "lint:fix": "./scripts/format.sh",
-    "lint:lint-all": "npm run lint:lint b_route",
+    "lint:lint-all": "pnpm run lint:lint b_route",
     "lint:lint": "./scripts/lint.sh"
   },
   "husky": {
@@ -17,8 +17,8 @@
   },
   "lint-staged": {
     "*.py": [
-      "npm run lint:fix",
-      "npm run lint:lint"
+      "pnpm run lint:fix",
+      "pnpm run lint:lint"
     ]
   },
   "devDependencies": {

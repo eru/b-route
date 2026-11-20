@@ -3,5 +3,5 @@
 set -e
 set -x
 
-poetry run ruff check "${@}"
-poetry run ruff format --check "${@}"
+uv run ruff check "${@}"
+uv run ruff format --check "${@}"

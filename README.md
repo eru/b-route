@@ -8,13 +8,13 @@ muninと組み合わせることで、画像のような監視を行うことが
 
 ## Requirements
 
-- poetry
-- yarn
+- uv
+- pnpm
 
 ## Install
 
 ```sh
-yarn install
+pnpm install
 cp config.ini{.sample,}
 $EDITOR config.ini
 ```
@@ -22,9 +22,9 @@ $EDITOR config.ini
 ## Run
 
 ```sh
-poetry run sensor
+uv run sensor
 ```
 
 ## Munin
 
-Copy `munin/*` to `/etc/munin/plugins` and `alias b-route-wattage='cd PATH_TO_B_ROUTE && poetry run sensor'`
+Copy `munin/*` to `/etc/munin/plugins` and `alias b-route-wattage='cd PATH_TO_B_ROUTE && uv run sensor'`
